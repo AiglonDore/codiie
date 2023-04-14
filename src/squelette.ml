@@ -140,7 +140,7 @@ let analyse_program file =
     NE MODIFIER RIEN AU DESSUS DE CE POINT 
 *)
 
-type ruban = unit (* type à changer bien sur *)
+type ruban = { left  : char list; right : char list; } (* type à changer bien sur *)
 
            
 let execute_program p = failwith "TODO" 
