@@ -145,7 +145,10 @@ type ruban = { left  : char list; right : char list; } (* type à changer bien s
            
 let execute_program p = failwith "TODO" 
 
-let fold_ruban f v0 r = failwith "TODO"
+let rec fold_ruban f v0 r = match r with
+  | { left = []; right = [] } -> v0
+  | { left = []; right = c::r } -> fold_ruban f (f v0 c) { left = []; right = r }
+  | { left = c::l; right = r } -> fold_ruban f (f v0 c) { left = l; right = r }
 
 let generate_program msg = failwith "TODO"
                       
