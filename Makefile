@@ -4,9 +4,13 @@ ifeq ($(RELEASE), TRUE)
 else
 	CC=ocamlc
 	TARGET=bin/codiie.byte
-fi
+endif
 
 all : $(TARGET)
 
-$(TARGET) : 
-	$(CC) -o $(TARGET) 
+$(TARGET) : src/squelette.ml
+	$(CC) -o $(TARGET) src/squelette.ml
+
+clean :
+	rm -vf bin/*.byte bin/*.native
+	rm -vf src/*.cmi src/*.cmo src/*.cmx src/*.o
