@@ -143,7 +143,22 @@ let analyse_program file =
 type ruban = { left  : char list; right : char list; } (* type à changer bien sur *)
 
            
-let execute_program p = failwith "TODO" 
+let execute_program p = 
+  let rec aux pr rub =
+    match pr with
+    | [] -> rub
+    | i::p -> begin
+      match i with
+      | Left -> aux p { left = List.tl rub.left; right = List.hd rub.left::rub.right }
+      | Right -> aux p { left = List.hd rub.right::rub.left; right = List.tl rub.right }
+      | Write c -> aux p { left = c::(List.tl rub.left); right = rub.right }
+      | Caesar n -> aux p { left = (List.map (fun c -> Char.chr (((Char.code c) - 65 + n) mod 26 + 65)) rub.left) ; right = rub.right }
+      | Delete c -> aux p { left = List.filter (fun x -> x <> c) rub.left ;  right = List.filter (fun x -> x <> c) rub.right }
+      | Invert -> aux p { left = List.rev rub.left; right = List.rev rub.right }
+      | Repeat(n,li) -> failwith "TODO"
+    end
+  in aux p { left = []; right = ['0'] }
+;;
 
 let rec fold_ruban f v0 r = match r with
   | { left = []; right = [] } -> v0
