@@ -140,25 +140,29 @@ let analyse_program file =
     NE MODIFIER RIEN AU DESSUS DE CE POINT 
 *)
 
-type ruban = { left  : char list; right : char list; } (* type à changer bien sur *)
+type ruban = { left  : char list; right : char list; }
 
            
-let execute_program p = 
-  let rec aux pr rub =
-    match pr with
-    | [] -> rub
-    | i::p -> begin
-      match i with
-      | Left -> aux p { left = List.tl rub.left; right = List.hd rub.left::rub.right }
-      | Right -> aux p { left = List.hd rub.right::rub.left; right = List.tl rub.right }
-      | Write c -> aux p { left = c::(List.tl rub.left); right = rub.right }
-      | Caesar n -> aux p { left = (List.map (fun c -> Char.chr (((Char.code c) - 65 + n) mod 26 + 65)) rub.left) ; right = rub.right }
-      | Delete c -> aux p { left = List.filter (fun x -> x <> c) rub.left ;  right = List.filter (fun x -> x <> c) rub.right }
-      | Invert -> aux p { left = List.rev rub.left; right = List.rev rub.right }
-      | Repeat(n,li) -> failwith "TODO"
+let execute_program pr = 
+  let rec execute_instruction i rub = match i with
+  | Left -> { left = List.tl rub.left; right = List.hd rub.left::rub.right }
+  | Right -> { left = List.hd rub.right::rub.left; right = List.tl rub.right }
+  | Write c -> if rub.left = [] then { left = [c]; right = rub.right } else { left = c::(List.tl rub.left); right = rub.right }
+  | Caesar n -> { left = (List.map (fun c -> Char.chr (((Char.code c) - 65 + n) mod 26 + 65)) rub.left) ; right = rub.right }
+  | Delete c -> { left = List.filter (fun x -> x <> c) rub.left ;  right = List.filter (fun x -> x <> c) rub.right }
+  | Invert ->{ left = List.rev rub.left; right = List.rev rub.right }
+  | Repeat(n,li) -> begin
+      let rec repeat n li rub = match n with
+        | 0 -> rub
+        | n -> repeat (n-1) li (execute_list li rub)
+      in
+        repeat n li rub
     end
-  in aux p { left = []; right = ['0'] }
-;;
+and execute_list li rub = match li with
+  | [] -> rub
+  | i::li -> execute_list li (execute_instruction i rub)
+in
+  execute_list pr { left = []; right = ['0'] }
 
 let rec fold_ruban f v0 r = match r with
   | { left = []; right = [] } -> v0
